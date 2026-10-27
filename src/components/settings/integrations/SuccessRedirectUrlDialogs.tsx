@@ -17,12 +17,14 @@ import {
   CashfreeForCreateAndEditSuccessRedirectUrlFragment,
   FlutterwaveForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
+  IpayForCreateAndEditSuccessRedirectUrlFragment,
   MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateCashfreePaymentProviderMutation,
   useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation,
   useUpdateGocardlessPaymentProviderMutation,
+  useUpdateIpayPaymentProviderSuccessRedirectUrlMutation,
   useUpdateMoneyhashPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
@@ -41,6 +43,11 @@ gql`
   }
 
   fragment FlutterwaveForCreateAndEditSuccessRedirectUrl on FlutterwaveProvider {
+    id
+    successRedirectUrl
+  }
+
+  fragment IpayForCreateAndEditSuccessRedirectUrl on IpayProvider {
     id
     successRedirectUrl
   }
@@ -84,6 +91,13 @@ gql`
     }
   }
 
+  mutation updateIpayPaymentProviderSuccessRedirectUrl($input: UpdateIpayPaymentProviderInput!) {
+    updateIpayPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
+
   mutation updateGocardlessPaymentProvider($input: UpdateGocardlessPaymentProviderInput!) {
     updateGocardlessPaymentProvider(input: $input) {
       id
@@ -108,12 +122,21 @@ gql`
 
 const SUCCESS_REDIRECT_URL_FORM_ID = 'success-redirect-url-form'
 
+const getHelperTextKey = (type: SuccessRedirectUrlProviderTypeKey): string => {
+  if (type === SuccessRedirectUrlProviderType.Adyen) return 'text_65367cb78324b77fcb6af2e9'
+  // i-pay sends payers back here after a failed payment too, and refuses non-https URLs.
+  if (type === SuccessRedirectUrlProviderType.Ipay) return 'text_1793117191354l9hic5vwvul'
+
+  return 'text_6538d6c00f753e0085cbd4ba'
+}
+
 const SuccessRedirectUrlProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
   Cashfree: 'Cashfree',
   Flutterwave: 'Flutterwave',
+  Ipay: 'Ipay',
   Moneyhash: 'Moneyhash',
 } as const
 
@@ -124,6 +147,7 @@ type SuccessRedirectUrlProviderFragment =
   | CashfreeForCreateAndEditSuccessRedirectUrlFragment
   | FlutterwaveForCreateAndEditSuccessRedirectUrlFragment
   | GocardlessForCreateAndEditSuccessRedirectUrlFragment
+  | IpayForCreateAndEditSuccessRedirectUrlFragment
   | StripeForCreateAndEditSuccessRedirectUrlFragment
   | MoneyhashForCreateAndEditSuccessRedirectUrlFragment
 
@@ -149,6 +173,7 @@ const useSuccessRedirectUrlMutations = () => {
   const [updateFlutterwaveProvider] =
     useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation()
   const [updateGocardlessProvider] = useUpdateGocardlessPaymentProviderMutation()
+  const [updateIpayProvider] = useUpdateIpayPaymentProviderSuccessRedirectUrlMutation()
   const [updateStripeProvider] = useUpdateStripePaymentProviderMutation()
   const [updateMoneyhashProvider] = useUpdateMoneyhashPaymentProviderMutation()
 
@@ -174,6 +199,8 @@ const useSuccessRedirectUrlMutations = () => {
         return updateCashfreeProvider({ variables: { input } })
       case SuccessRedirectUrlProviderType.Flutterwave:
         return updateFlutterwaveProvider({ variables: { input } })
+      case SuccessRedirectUrlProviderType.Ipay:
+        return updateIpayProvider({ variables: { input } })
       case SuccessRedirectUrlProviderType.Moneyhash:
         return updateMoneyhashProvider({ variables: { input } })
     }
@@ -197,6 +224,17 @@ export const useAddEditSuccessRedirectUrlDialog = () => {
   const dataRef = useRef<AddEditSuccessRedirectUrlDialogData | null>(null)
   const successRef = useRef(false)
 
+  const getInvalidUrlMessage = (type: SuccessRedirectUrlProviderTypeKey): string => {
+    if (type === SuccessRedirectUrlProviderType.Adyen) {
+      return translate('text_65367cb78324b77fcb6af2eb', { href: ADYEN_SUCCESS_LINK_SPEC_URL })
+    }
+    if (type === SuccessRedirectUrlProviderType.Ipay) {
+      return translate('text_1793117191354pipj9icikqq')
+    }
+
+    return translate('text_6538d6f6c43ecb00706e6ab6')
+  }
+
   const form = useAppForm({
     defaultValues: initialValues,
     validationLogic: revalidateLogic(),
@@ -214,10 +252,7 @@ export const useAddEditSuccessRedirectUrlDialog = () => {
 
       if (res.errors) {
         if (hasDefinedGQLError('UrlIsInvalid', res.errors ?? undefined)) {
-          const message =
-            currentData.type === SuccessRedirectUrlProviderType.Adyen
-              ? translate('text_65367cb78324b77fcb6af2eb', { href: ADYEN_SUCCESS_LINK_SPEC_URL })
-              : translate('text_6538d6f6c43ecb00706e6ab6')
+          const message = getInvalidUrlMessage(currentData.type)
 
           formApi.setErrorMap({
             onDynamic: {
@@ -262,10 +297,7 @@ export const useAddEditSuccessRedirectUrlDialog = () => {
     form.reset()
     form.setFieldValue('successRedirectUrl', data.provider?.successRedirectUrl ?? '')
 
-    const helperTextKey =
-      data.type === SuccessRedirectUrlProviderType.Adyen
-        ? 'text_65367cb78324b77fcb6af2e9'
-        : 'text_6538d6c00f753e0085cbd4ba'
+    const helperTextKey = getHelperTextKey(data.type)
 
     formDialog
       .open({

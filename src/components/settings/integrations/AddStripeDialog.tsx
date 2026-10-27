@@ -57,6 +57,9 @@ gql`
       ... on MoneyhashProvider {
         id
       }
+      ... on IpayProvider {
+        id
+      }
     }
   }
 

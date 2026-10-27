@@ -1,8 +1,8 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, render } from '~/test-utils'
 
 import {
   useAddEditSuccessRedirectUrlDialog,
@@ -18,6 +18,7 @@ const mockUpdateFlutterwaveProvider = jest.fn()
 const mockUpdateGocardlessProvider = jest.fn()
 const mockUpdateStripeProvider = jest.fn()
 const mockUpdateMoneyhashProvider = jest.fn()
+const mockUpdateIpayProvider = jest.fn()
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   ...jest.requireActual('~/components/dialogs/FormDialog'),
@@ -47,6 +48,7 @@ jest.mock('~/generated/graphql', () => ({
   useUpdateGocardlessPaymentProviderMutation: () => [mockUpdateGocardlessProvider],
   useUpdateStripePaymentProviderMutation: () => [mockUpdateStripeProvider],
   useUpdateMoneyhashPaymentProviderMutation: () => [mockUpdateMoneyhashProvider],
+  useUpdateIpayPaymentProviderSuccessRedirectUrlMutation: () => [mockUpdateIpayProvider],
 }))
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -60,6 +62,7 @@ const PROVIDER_MUTATIONS = [
   { type: 'Cashfree' as const, mock: mockUpdateCashfreeProvider },
   { type: 'Flutterwave' as const, mock: mockUpdateFlutterwaveProvider },
   { type: 'Moneyhash' as const, mock: mockUpdateMoneyhashProvider },
+  { type: 'Ipay' as const, mock: mockUpdateIpayProvider },
 ]
 
 describe('useAddEditSuccessRedirectUrlDialog', () => {
@@ -240,6 +243,47 @@ describe('useAddEditSuccessRedirectUrlDialog', () => {
 
         expect(mockUpdateStripeProvider).toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN i-pay refuses the URL', () => {
+      it('THEN should say under the field that the URL must begin with https://', async () => {
+        mockUpdateIpayProvider.mockResolvedValue({
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                code: 'unprocessable_entity',
+                details: { successRedirectUrl: ['url_is_invalid'] },
+              },
+            },
+          ],
+        })
+        let dialogConfig: { children: ReactNode; form: { submit: () => Promise<unknown> } } | null =
+          null
+
+        mockFormDialogOpen.mockImplementation((config) => {
+          dialogConfig = config
+          return new Promise(() => {})
+        })
+
+        const { result } = renderHook(() => useAddEditSuccessRedirectUrlDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddEditSuccessRedirectUrlDialog({
+            mode: 'Add',
+            type: 'Ipay',
+            provider: { id: 'provider-1', successRedirectUrl: 'http://example.com' },
+          })
+        })
+
+        await act(() => render(<>{dialogConfig?.children}</>))
+        await act(async () => {
+          await expect(dialogConfig?.form.submit()).rejects.toThrow('Submit failed')
+        })
+
+        expect(mockUpdateIpayProvider).toHaveBeenCalled()
+        expect(await screen.findByText('text_1793117191354pipj9icikqq')).toBeInTheDocument()
       })
     })
 

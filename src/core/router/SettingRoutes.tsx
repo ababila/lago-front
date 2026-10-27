@@ -82,6 +82,8 @@ const FlutterwaveIntegrations = lazyLoad(() => import('~/pages/settings/Flutterw
 const FlutterwaveIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/FlutterwaveIntegrationDetails'),
 )
+const IpayIntegrations = lazyLoad(() => import('~/pages/settings/IpayIntegrations'))
+const IpayIntegrationDetails = lazyLoad(() => import('~/pages/settings/IpayIntegrationDetails'))
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
@@ -147,6 +149,8 @@ export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
 export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash/:integrationId`
 export const FLUTTERWAVE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave`
 export const FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave/:integrationId`
+export const IPAY_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/ipay`
+export const IPAY_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/ipay/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
 
@@ -414,6 +418,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: FLUTTERWAVE_INTEGRATION_ROUTE,
         private: true,
         element: <FlutterwaveIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: IPAY_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <IpayIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: IPAY_INTEGRATION_ROUTE,
+        private: true,
+        element: <IpayIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

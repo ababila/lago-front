@@ -481,6 +481,7 @@ describe('ConnectionDetailsPanel', () => {
     describe.each([
       ['Cashfree', ProviderTypeEnum.Cashfree],
       ['Flutterwave', ProviderTypeEnum.Flutterwave],
+      ['Ipay', ProviderTypeEnum.Ipay],
     ])('WHEN the %s connection is selected', (_, paymentProvider) => {
       it('THEN should drop the Provider customer ID row instead of reporting a broken connection', () => {
         render(
@@ -538,6 +539,7 @@ describe('ConnectionDetailsPanel', () => {
     describe.each([
       ['Cashfree', ProviderTypeEnum.Cashfree],
       ['Flutterwave', ProviderTypeEnum.Flutterwave],
+      ['Ipay', ProviderTypeEnum.Ipay],
     ])(
       'WHEN the %s connection has no provider-customer row to carry the flag',
       (_, paymentProvider) => {

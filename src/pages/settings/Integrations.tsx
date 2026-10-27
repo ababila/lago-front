@@ -22,6 +22,7 @@ import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCash
 import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
+import { useAddIpayDialog } from '~/components/settings/integrations/AddIpayDialog'
 import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
@@ -44,6 +45,7 @@ import {
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
   INTEGRATIONS_ROUTE,
+  IPAY_INTEGRATION_ROUTE,
   MONEYHASH_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
@@ -70,6 +72,7 @@ import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import Hubspot from '~/public/images/hubspot.svg'
+import Ipay from '~/public/images/ipay.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Netsuite from '~/public/images/netsuite.svg'
@@ -110,6 +113,10 @@ gql`
         }
 
         ... on FlutterwaveProvider {
+          id
+        }
+
+        ... on IpayProvider {
           id
         }
       }
@@ -161,6 +168,7 @@ const Integrations = () => {
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
+  const { openAddIpayDialog } = useAddIpayDialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -191,6 +199,9 @@ const Integrations = () => {
   )
   const hasFlutterwaveIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'FlutterwaveProvider',
+  )
+  const hasIpayIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'IpayProvider',
   )
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
@@ -768,6 +779,39 @@ const Integrations = () => {
 
                             element.blur && element.blur()
                             openAddFlutterwaveDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_1793114148166k69yfzefi4w')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Ipay />
+                          </Avatar>
+                        }
+                        endContent={getEndContent({
+                          showConnectedBadge: hasIpayIntegration,
+                        })}
+                        hoverActions={getHoverActions(
+                          hasIpayIntegration,
+                          generatePath(IPAY_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                          }),
+                        )}
+                        onClick={() => {
+                          if (hasIpayIntegration) {
+                            navigate(
+                              generatePath(IPAY_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            openAddIpayDialog()
                           }
                         }}
                         fullWidth

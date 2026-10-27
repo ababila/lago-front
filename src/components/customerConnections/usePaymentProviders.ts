@@ -51,6 +51,13 @@ gql`
           name
           code
         }
+
+        ... on IpayProvider {
+          __typename
+          id
+          name
+          code
+        }
       }
     }
   }

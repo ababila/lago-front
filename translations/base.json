@@ -5291,5 +5291,19 @@
   "text_1792506302406m3twa4pwimw": "Every change made to this rate card and its phases.",
   "text_1792507128247xgs5eskh1bu": "Create a rate phase",
   "text_1792507128247tj6ezglktl8": "Rate card not found",
-  "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever"
+  "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever",
+  "text_1793114148166k69yfzefi4w": "i-pay",
+  "text_1793114148166p9th2sfm58r": "Edit i-pay",
+  "text_17931141481664aoggezsxhi": "Connect i-pay",
+  "text_179311414816663uhp13u7a6": "Connect with i-pay to collect mobile money and card payments from your customers. Invoices must be in XOF, 50 XOF minimum.",
+  "text_1793114148166rt4bqcxsifr": "Enter your i-pay secret key (sk_sandbox_… or sk_live_…)",
+  "text_17931141481663qejpsfnzh7": "i-pay integration created successfully",
+  "text_1793114148166wpd01yxldtt": "i-pay integration updated successfully",
+  "text_1793114148167pu7zn8pzr27": "Are you sure you want to delete this i-pay integration?",
+  "text_1793114148167bsweqjhdebp": "i-pay integration deleted successfully",
+  "text_1793114148167iikzjum8v5x": "Accept mobile money and card payments from your customers via i-pay",
+  "text_1793114148167vbyr9fdfa9o": "In the Developers > Webhooks section of your i-pay dashboard, add a webhook with the URL above, paste the webhook secret above as its Hash secret, and enable its succeeded and refunded events.",
+  "text_1793117191354l9hic5vwvul": "Customers return to this URL after paying, whether the payment succeeded or failed. It must begin with https://.",
+  "text_1793117191354pipj9icikqq": "Your URL should begin with https://. Please fix it to continue.",
+  "text_1793117191354vyh19f9k8yf": "The secret key should begin with sk_sandbox_ or sk_live_."
 }
